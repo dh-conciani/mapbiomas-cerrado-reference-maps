@@ -21,14 +21,18 @@ var landsat_years = [1985, 1986, 1987, 1988, 1989, 1990, 1991, 1992, 1993, 1994,
                      2021, 2022];
   
 // remap landsat for reference classes
+var landsat_remap = ee.Image([]);
 landsat_years.forEach(function(year_i) {
   // get year i
   var landsat_i = landsat.select('classification_' + year_i)
     // remap
-    .remap({'from': [],
-            'to': []
+    .remap({'from': [3, 4, 5, 6, 49, 11, 12, 32, 29, 50, 13, 15, 19, 39, 20, 40, 62, 41, 36, 46, 47, 35, 48, 9, 21, 23, 24, 30, 25, 33, 31],
+            'to':   [3, 4, 3, 3, 3,  11, 12, 12, 12, 12, 12, 15, 19, 19, 19, 19, 19, 19, 36, 36, 36, 36, 36, 9, 21, 25, 24, 30, 25, 33, 33]
     });
+    // store
+    landsat_remap = landsat_remap.addBands(landsat_i.rename('classification_' + year_i));
 });
+
 
 // sentinel based 
 var sentinel = ee.Image('projects/mapbiomas-workspace/public/collection_S2_beta/collection_LULC_S2_beta')
@@ -38,18 +42,20 @@ var sentinel = ee.Image('projects/mapbiomas-workspace/public/collection_S2_beta/
 var sentinel_years = [2016, 2017, 2018, 2019, 2020, 2021];
 
 // remap sentinel for refrence classes
+var sentinel_remap = ee.Image([]);
 sentinel_years.forEach(function(year_i) {
   // get year i
   var sentinel_i = sentinel.select('classification_' + year_i)
   // remap
-  .remap({'from': [],
-          'to': []
-  });
+    .remap({'from': [3, 4, 5, 6, 49, 11, 12, 32, 29, 50, 13, 15, 19, 39, 20, 40, 62, 41, 36, 46, 47, 35, 48, 9, 21, 23, 24, 30, 25, 33, 31],
+            'to':   [3, 4, 3, 3, 3,  11, 12, 12, 12, 12, 12, 15, 19, 19, 19, 19, 19, 19, 36, 36, 36, 36, 36, 9, 21, 25, 24, 30, 25, 33, 33]
+    });
+  // store
+  sentinel_remap = sentinel_remap.addBands(sentinel_i.rename('classification_' + year_i));
 });
   
 
 //// read reference data
-
 
 
 
@@ -76,8 +82,8 @@ var vis = {
     'palette': require('users/mapbiomas/modules:Palettes.js').get('classification8')
 };
 
-// 
-Map.addLayer(carta);
-Map.addLayer(sentinel.select('classification_2020'), vis, 'Sentinel');
-Map.addLayer(landsat.select('classification_2020'), vis, 'Landsat');
+// plot 
+//Map.addLayer(carta);
+Map.addLayer(sentinel_remap.select('classification_2020'), vis, 'Sentinel');
+Map.addLayer(landsat_remap.select('classification_2020'), vis, 'Landsat');
 
