@@ -18,6 +18,16 @@ var sentinel = ee.Image('projects/mapbiomas-workspace/public/collection_S2_beta/
 var landsat = ee.Image('projects/mapbiomas-workspace/public/collection8/mapbiomas_collection80_integration_v1')
   .clip(carta);
 
+//// read reference data
+// 
+
+
+
+
+
+
+
+
 // read palette
 var vis = {
     'min': 0,
@@ -25,7 +35,7 @@ var vis = {
     'palette': require('users/mapbiomas/modules:Palettes.js').get('classification8')
 };
 
-
+// 
 Map.addLayer(carta);
 Map.addLayer(sentinel.select('classification_2020'), vis, 'Sentinel');
 Map.addLayer(landsat.select('classification_2020'), vis, 'Landsat');
