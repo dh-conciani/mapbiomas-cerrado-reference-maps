@@ -22,17 +22,31 @@ var landsat_years = [1985, 1986, 1987, 1988, 1989, 1990, 1991, 1992, 1993, 1994,
   
 // remap landsat for reference classes
 landsat_years.forEach(function(year_i) {
-  
+  // get year i
+  var landsat_i = landsat.select('classification_' + year_i)
+    // remap
+    .remap({'from': [],
+            'to': []
+    });
 });
-
-
-
 
 // sentinel based 
 var sentinel = ee.Image('projects/mapbiomas-workspace/public/collection_S2_beta/collection_LULC_S2_beta')
   .clip(carta);
 
+// set sentinel years
+var sentinel_years = [2016, 2017, 2018, 2019, 2020, 2021];
 
+// remap sentinel for refrence classes
+sentinel_years.forEach(function(year_i) {
+  // get year i
+  var sentinel_i = sentinel.select('classification_' + year_i)
+  // remap
+  .remap({'from': [],
+          'to': []
+  });
+});
+  
 
 //// read reference data
 
@@ -40,17 +54,17 @@ var sentinel = ee.Image('projects/mapbiomas-workspace/public/collection_S2_beta/
 
 
 
-3-floresta
-9-reflo
-11-várzea
-15-pastagem
-19-agricultura temporáia
-36-agricultura perene
-24-urbano
-25-outras não vegetais
-30-mineração
-33-água
-68-seria um tipo de vegetação intra-urbana ou áreas abertas intra-urbanas
+//3-floresta
+//9-reflo
+//11-várzea
+//15-pastagem
+//19-agricultura temporáia
+//36-agricultura perene
+//24-urbano
+//25-outras não vegetais
+//30-mineração
+//33-água
+//68-seria um tipo de vegetação intra-urbana ou áreas abertas intra-urbanas
 
 
 
