@@ -15,10 +15,7 @@ var landsat = ee.Image('projects/mapbiomas-workspace/public/collection8/mapbioma
   .clip(carta);
 
 // set landsat years
-var landsat_years = [1985, 1986, 1987, 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996,
-                     1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008,
-                     2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020,
-                     2021, 2022];
+var landsat_years = [2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020];
   
 // remap landsat for reference classes
 var landsat_remap = ee.Image([]);
@@ -39,9 +36,9 @@ var sentinel = ee.Image('projects/mapbiomas-workspace/public/collection_S2_beta/
   .clip(carta);
 
 // set sentinel years
-var sentinel_years = [2016, 2017, 2018, 2019, 2020, 2021];
+var sentinel_years = [2016, 2017, 2018, 2019, 2020];
 
-// remap sentinel for refrence classes
+// remap sentinel for refrence classesmap.
 var sentinel_remap = ee.Image([]);
 sentinel_years.forEach(function(year_i) {
   // get year i
@@ -54,6 +51,53 @@ sentinel_years.forEach(function(year_i) {
   sentinel_remap = sentinel_remap.addBands(sentinel_i.rename('classification_' + year_i));
 });
   
+// define function to compute the number of classes per pixel
+var calculateNumberOfClasses = function (image) {
+    var nClasses = image.reduce(ee.Reducer.countDistinctNonNull());
+    return nClasses.rename('number_of_classes');
+};
+
+// get the number of changes
+var sentinel_nclasses = calculateNumberOfClasses(sentinel_remap);
+var landsat_nclasses = calculateNumberOfClasses(landsat_remap);
+
+Map.addLayer(sentinel_remap, {}, 'Sentinel Collection', false);
+Map.addLayer(sentinel_nclasses, {palette:['green', 'yellow', 'red'], min:1, max:3}, 'Sentinel n. changes', false);
+
+// get stable pixels
+var stable_sentinel = sentinel_remap.select(0).multiply(sentinel_nclasses.eq(1));
+var stable_landsat = landsat_remap.select(0).multiply(landsat_nclasses.eq(1));
+
+// read palette
+var vis = {
+    'min': 0,
+    'max': 62,
+    'palette': require('users/mapbiomas/modules:Palettes.js').get('classification8')
+};
+
+Map.addLayer(stable_sentinel, vis, 'Stable Sentinel');
+Map.addLayer(stable_landsat, vis, 'Stable Landsat');
+
+// retain only agreement
+var stable_mask = ee.Image(0)
+  .where(stable_sentinel.eq(stable_landsat), 1)
+  .clip(carta)
+  .selfMask();
+  
+// build stable pixels
+var stable_pixels = stable_sentinel.updateMask(stable_mask.eq(1)).selfMask();
+  
+Map.addLayer(stable_pixels, vis, 'Stable pixels');
+
+
+
+
+
+
+
+
+
+
 
 //// read reference data
 
@@ -73,17 +117,4 @@ sentinel_years.forEach(function(year_i) {
 //68-seria um tipo de vegetação intra-urbana ou áreas abertas intra-urbanas
 
 
-
-
-// read palette
-var vis = {
-    'min': 0,
-    'max': 62,
-    'palette': require('users/mapbiomas/modules:Palettes.js').get('classification8')
-};
-
-// plot 
-//Map.addLayer(carta);
-Map.addLayer(sentinel_remap.select('classification_2020'), vis, 'Sentinel');
-Map.addLayer(landsat_remap.select('classification_2020'), vis, 'Landsat');
 
