@@ -86,7 +86,7 @@ var stable_mask = ee.Image(0)
   
 // build stable pixels
 var stable_pixels = stable_sentinel.updateMask(stable_mask.eq(1)).selfMask();
-Map.addLayer(stable_pixels, vis, 'Stable pixels (S2 + C8)');
+Map.addLayer(stable_pixels, vis, 'Stable pixels (S2 + C8)', false);
 
 //// enhance by using distrito federal reference map 
 var df_ref = ee.Image('projects/barbaracosta-ipam/assets/base/DF_cobertura-do-solo_2019_img')
@@ -94,20 +94,40 @@ var df_ref = ee.Image('projects/barbaracosta-ipam/assets/base/DF_cobertura-do-so
   .clip(carta);
   
 Map.addLayer(df_ref, vis, 'Mapa DF', false);
-Map.addLayer(stable_enhanced, vis, 'Melhorado');
 
 // apply distrito federal rules
 var stable_enhanced = stable_pixels
   // retain only farming that matches with farming in df map
-  .where(stable_pixels.eq(19).or(stable_pixels.eq(36).or(stable_pixels.eq(15))).and(df_ref.neq(21)), 0)
+  .where(stable_pixels.eq(21).and(stable_pixels.eq(19).or(stable_pixels.eq(36).or(stable_pixels.eq(15)))).and(df_ref.neq(21)), 0)
   // retain 'pivo central' as farming
   .where(df_ref.eq(18).and(stable_pixels.eq(19)), stable_pixels)
   // remove native vegetation when df maps says that it is farming
   .where(stable_pixels.eq(3).or(stable_pixels.eq(4).or(stable_pixels.eq(11).or(stable_pixels.eq(12)))).and(df_ref.eq(21)), 0)
   .clip(carta);
   
+//// enhance by using terra class cerrado 
+var terra_class = ee.Image('projects/barbaracosta-ipam/assets/base/TERRACLASS_cerrado_2020')
+  // remap to mapbiomas legend
+  .remap([1, 2, 9, 10, 12, 13, 14, 15, 16, 17, 19, 20, 22, 51, 52],
+         [1, 1, 9, 21, 21, 21, 21, 21, 30, 24, 21, 33, 27, 21, 24])
+        .clip(carta);
 
-//// enhance by using goais reference map 
+Map.addLayer(terra_class, vis, 'Terra Class', false);
+
+// apply terra class rules
+stable_enhanced = stable_enhanced
+  // retain only farming that matches with farming in terra class
+  .where(stable_pixels.eq(19).or(stable_pixels.eq(36).or(stable_pixels.eq(15))).and(terra_class.neq(21)), 0)
+  // remove native vegetation when terra clas says that it is farming
+  .where(stable_pixels.eq(3).or(stable_pixels.eq(4).or(stable_pixels.eq(11).or(stable_pixels.eq(12)))).and(terra_class.eq(21)), 0);
+
+// Plot training mask
+Map.addLayer(stable_enhanced, vis, 'Melhorado');
+
+
+
+
+
 
 
 
