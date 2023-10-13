@@ -86,5 +86,45 @@ var stable_mask = ee.Image(0)
   
 // build stable pixels
 var stable_pixels = stable_sentinel.updateMask(stable_mask.eq(1)).selfMask();
-  
 Map.addLayer(stable_pixels, vis, 'Stable pixels (S2 + C8)');
+
+//// enhance by using distrito federal reference map 
+var df_ref = ee.Image('projects/barbaracosta-ipam/assets/base/DF_cobertura-do-solo_2019_img')
+  .select('classification_DF_2019')
+  .clip(carta);
+  
+Map.addLayer(df_ref, vis, 'Mapa DF', false);
+Map.addLayer(stable_enhanced, vis, 'Melhorado');
+
+// apply distrito federal rules
+var stable_enhanced = stable_pixels
+  // retain only farming that matches with farming in df map
+  .where(stable_pixels.eq(19).or(stable_pixels.eq(36).or(stable_pixels.eq(15))).and(df_ref.neq(21)), 0)
+  // retain 'pivo central' as farming
+  .where(df_ref.eq(18).and(stable_pixels.eq(19)), stable_pixels)
+  // remove native vegetation when df maps says that it is farming
+  .where(stable_pixels.eq(3).or(stable_pixels.eq(4).or(stable_pixels.eq(11).or(stable_pixels.eq(12)))).and(df_ref.eq(21)), 0)
+  .clip(carta);
+  
+
+//// enhance by using goais reference map 
+
+
+
+
+
+
+
+//3-floresta
+//9-reflo
+//11-várzea
+//15-pastagem
+//19-agricultura temporáia
+//36-agricultura perene
+//24-urbano
+//25-outras não vegetais
+//30-mineração
+//33-água
+//68-seria um tipo de vegetação intra-urbana ou áreas abertas intra-urbanas
+
+
