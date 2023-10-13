@@ -75,8 +75,8 @@ var vis = {
     'palette': require('users/mapbiomas/modules:Palettes.js').get('classification8')
 };
 
-Map.addLayer(stable_sentinel, vis, 'Stable Sentinel');
-Map.addLayer(stable_landsat, vis, 'Stable Landsat');
+Map.addLayer(stable_sentinel, vis, 'Stable Sentinel', false);
+Map.addLayer(stable_landsat, vis, 'Stable Landsat', false);
 
 // retain only agreement
 var stable_mask = ee.Image(0)
@@ -87,34 +87,4 @@ var stable_mask = ee.Image(0)
 // build stable pixels
 var stable_pixels = stable_sentinel.updateMask(stable_mask.eq(1)).selfMask();
   
-Map.addLayer(stable_pixels, vis, 'Stable pixels');
-
-
-
-
-
-
-
-
-
-
-
-//// read reference data
-
-
-
-
-//3-floresta
-//9-reflo
-//11-várzea
-//15-pastagem
-//19-agricultura temporáia
-//36-agricultura perene
-//24-urbano
-//25-outras não vegetais
-//30-mineração
-//33-água
-//68-seria um tipo de vegetação intra-urbana ou áreas abertas intra-urbanas
-
-
-
+Map.addLayer(stable_pixels, vis, 'Stable pixels (S2 + C8)');
