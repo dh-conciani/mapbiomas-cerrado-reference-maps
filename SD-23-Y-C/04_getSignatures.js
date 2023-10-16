@@ -53,7 +53,7 @@ Map.addLayer(mosaic, {'bands': ['swir1_median', 'nir_median', 'red_median'],
   'gain': [0.08, 0.07, 0.2], 'gamma': 0.85}, 'Sentinel ' + year, true);
   
 // build mosaic with complementary bands
-mosaic_i = mosaic_i.addBands(lat).addBands(lon_sin).addBands(lon_cos);
+mosaic_i = mosaic_i.addBands(lat).addBands(lon_sin).addBands(lon_cos).addBands(hand);
 
 // apply style over the points
 var paletteMapBiomas = require('users/mapbiomas/modules:Palettes.js').get('classification8');
