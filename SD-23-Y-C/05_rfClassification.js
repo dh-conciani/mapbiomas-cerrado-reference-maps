@@ -59,8 +59,6 @@ var mosaic_i = mosaic.filterMetadata('year', 'equals', 2020)
   .addBands(lon_cos)
   .addBands(hand);
   
-print(mosaic_i)
-
 // train classifier
 var classifier = ee.Classifier.smileRandomForest({
   'numberOfTrees': 300,
@@ -70,4 +68,12 @@ var classifier = ee.Classifier.smileRandomForest({
 // perform classificationn 
 var predicted = mosaic_i.classify(classifier).mask(mosaic_i.select(0)).rename('classification_' + year).toInt8();
 
-Map.addLayer(predicted)
+// read palette
+var vis = {
+    'min': 0,
+    'max': 62,
+    'palette': require('users/mapbiomas/modules:Palettes.js').get('classification8')
+};
+
+print(predicted);
+Map.addLayer(predicted, vis, 'classification raw');
