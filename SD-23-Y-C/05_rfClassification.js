@@ -58,6 +58,11 @@ var mosaic_i = mosaic.filterMetadata('year', 'equals', 2020)
   .addBands(lon_sin)
   .addBands(lon_cos)
   .addBands(hand);
+
+// limit samples of rare classes
+
+
+
   
 // train classifier
 var classifier = ee.Classifier.smileRandomForest({
