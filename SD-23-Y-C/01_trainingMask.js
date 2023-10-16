@@ -12,8 +12,13 @@ var output_version = 1;
 
 // read study area
 var carta = ee.FeatureCollection('projects/nexgenmap/ANCILLARY/nextgenmap_grids')
-  .filterMetadata('grid_name', 'equals', id_carta);
+  .filterMetadata('grid_name', 'equals', id_carta)
+  // compute 300m buffer
+  .map(function(feature) {
+    return feature.buffer({'distance': 300});
+  });
 
+  
 // split into subgrids 
 var subcarta = ee.FeatureCollection('projects/nexgenmap/ANCILLARY/nextgenmap_subgrids')
     .filterMetadata('grid', 'equals', id_carta);
@@ -128,10 +133,12 @@ stable_enhanced = stable_enhanced
   // retain only farming that matches with farming in terra class
   .where(stable_pixels.eq(19).or(stable_pixels.eq(36).or(stable_pixels.eq(15))).and(terra_class.neq(21)), 0)
   // remove native vegetation when terra clas says that it is farming
-  .where(stable_pixels.eq(3).or(stable_pixels.eq(4).or(stable_pixels.eq(11).or(stable_pixels.eq(12)))).and(terra_class.eq(21)), 0);
+  .where(stable_pixels.eq(3).or(stable_pixels.eq(4).or(stable_pixels.eq(11).or(stable_pixels.eq(12)))).and(terra_class.eq(21)), 0)
+  // selfMask
+  .selfMask();
 
 // Plot training mask
-Map.addLayer(stable_enhanced, vis, 'Melhorado');
+Map.addLayer(stable_enhanced, vis, 'Enhanced');
 
 // export
 Export.image.toAsset({
