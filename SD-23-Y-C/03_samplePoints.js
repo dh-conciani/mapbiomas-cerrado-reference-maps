@@ -40,7 +40,7 @@ var vis = {
 };
 
 // plot stable pixels
-Map.addLayer(trainingMask, vis, 'trainingMask', true);
+Map.addLayer(trainingMask, vis, 'trainingMask', false);
 
 // define function to get trainng samples
 var getTrainingSamples = function (feature) {
@@ -118,10 +118,23 @@ var getTrainingSamples = function (feature) {
 var samplePoints = referenceAreas.map(getTrainingSamples).flatten(); 
 
 // apply style over the points
-
+var paletteMapBiomas = require('users/mapbiomas/modules:Palettes.js').get('classification8');
+var newSamplesStyled = samplePoints.map(
+    function (feature) {
+        return feature.set('style', {
+            'color': ee.List(paletteMapBiomas)
+                .get(feature.get('reference')),
+            'width': 1,
+        });
+    }
+).style(
+    {
+        'styleProperty': 'style'
+    }
+);
 
 // plot points
-Map.addLayer(samplePoints, vis, 'samplePoints');
+Map.addLayer(newSamplesStyled, {}, 'samplePoints');
 
 
 // export as GEE asset
