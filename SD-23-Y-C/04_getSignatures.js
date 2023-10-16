@@ -55,6 +55,24 @@ Map.addLayer(mosaic, {'bands': ['swir1_median', 'nir_median', 'red_median'],
 // build mosaic with complementary bands
 mosaic_i = mosaic_i.addBands(lat).addBands(lon_sin).addBands(lon_cos);
 
+// apply style over the points
+var paletteMapBiomas = require('users/mapbiomas/modules:Palettes.js').get('classification8');
+var newSamplesStyled = samples.map(
+    function (feature) {
+        return feature.set('style', {
+            'color': ee.List(paletteMapBiomas)
+                .get(feature.get('reference')),
+            'width': 1,
+        });
+    }
+).style(
+    {
+        'styleProperty': 'style'
+    }
+);
+
+Map.addLayer(newSamplesStyled, {}, 'trainingSamples');
+
 // get training samples
 var training_i = mosaic_i.sampleRegions({'collection': samples,
                                          'scale': 10,
