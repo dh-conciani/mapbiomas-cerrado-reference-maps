@@ -60,6 +60,11 @@ var mosaic_i = mosaic.filterMetadata('year', 'equals', 2020)
   .addBands(hand);
 
 // limit samples of rare classes
+var rareClasses = trainingSamples.filter(ee.Filter.inList('reference', [9, 11, 21, 36, 24, 25, 30, 33]));
+print(rareClasses.size());
+
+var normalClasses = trainingSamples.filter(ee.Filter.inList('reference', [3, 4, 12, 15, 19]));
+print(normalClasses.size());
 
 
 
