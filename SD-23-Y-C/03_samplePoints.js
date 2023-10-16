@@ -136,10 +136,7 @@ var newSamplesStyled = samplePoints.map(
 // plot points
 Map.addLayer(newSamplesStyled, {}, 'samplePoints');
 
-
 // export as GEE asset
-//Export.table.toAsset({'collection': samplePoints,
-//                      'description': 'samplePoints_v' + version,
-//                      'assetId':  output + 'samplePoints_v' + version
-//                      }
-//                    );
+Export.table.toAsset({'collection': samplePoints,
+                      'description': id_carta + '_samplePoints_v' + version,
+                      'assetId':  output_dir + '/' + id_carta + '_samplePoints_v' + version});
