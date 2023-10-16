@@ -1,13 +1,22 @@
 // get training mask to perform the land cover and land use classification 
 // dhemerson.costa@ipam.org.br - ipam 
 
+// define ibges' carta id
+var id_carta = 'SD-23-Y-C';
+
+// set output 
+var output_dir = 'users/dh-conciani/gt_mapa_referencia/' + id_carta + '/masks';
+
+// set output version
+var output_version = 1;
+
 // read study area
 var carta = ee.FeatureCollection('projects/nexgenmap/ANCILLARY/nextgenmap_grids')
-  .filterMetadata('grid_name', 'equals', 'SD-23-Y-C');
+  .filterMetadata('grid_name', 'equals', id_carta);
 
 // split into subgrids 
 var subcarta = ee.FeatureCollection('projects/nexgenmap/ANCILLARY/nextgenmap_subgrids')
-    .filterMetadata('grid', 'equals', 'SD-23-Y-C');
+    .filterMetadata('grid', 'equals', id_carta);
 
 //// read mapbiomas collections
 // landsat based
@@ -124,27 +133,12 @@ stable_enhanced = stable_enhanced
 // Plot training mask
 Map.addLayer(stable_enhanced, vis, 'Melhorado');
 
-
-
-
-
-
-
-
-
-
-
-
-//3-floresta
-//9-reflo
-//11-várzea
-//15-pastagem
-//19-agricultura temporáia
-//36-agricultura perene
-//24-urbano
-//25-outras não vegetais
-//30-mineração
-//33-água
-//68-seria um tipo de vegetação intra-urbana ou áreas abertas intra-urbanas
-
-
+// export
+Export.image.toAsset({
+		image: stable_enhanced,
+    description: 'trainingMask_' + id_carta,
+    assetId: output_dir + '/' + 'trainingMask_' + id_carta + '_v' + output_version,
+    region: carta.geometry(),
+    scale: 10,
+    maxPixels: 1e13
+});
