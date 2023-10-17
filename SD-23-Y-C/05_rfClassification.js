@@ -10,7 +10,7 @@ var output_version =  1;  // output classification version
 
 // set frequency of classes
 var rareList =  [9, 36, 24, 25, 30];  // use a reduced number of training samples (25% of minimum, 1.75% of total)
-var rareList2 = [21]; // use a reduced number of training samples (50% of minimum, 3.5% of total)
+var rareList2 = [21, 33]; // use a reduced number of training samples (50% of minimum, 3.5% of total)
 var rareList3 = [11]; // use a reduced number of training samples (75% of minimum, 5.25% of total)
 var normalList = [3, 4, 12, 15, 19];
 
@@ -83,7 +83,7 @@ var vis = {
 };
 
 print('raw - unbalanced', predicted);
-Map.addLayer(predicted, vis, 'classification raw');
+Map.addLayer(predicted, vis, 'unbalanced');
 
 ///////////////////////////// BALANCE SAMPLES
 
@@ -124,4 +124,4 @@ var classifier2 = ee.Classifier.smileRandomForest({
 var predicted2 = mosaic_i.classify(classifier2).mask(mosaic_i.select(0)).rename('classification_' + year).toInt8();
 
 print('v2- balanced', predicted2);
-Map.addLayer(predicted2, vis, 'classification v2');
+Map.addLayer(predicted2, vis, 'balanced');
