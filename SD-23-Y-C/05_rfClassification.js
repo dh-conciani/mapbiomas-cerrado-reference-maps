@@ -9,8 +9,8 @@ var samples_version = 1;   // input training samples version
 var output_version =  1;  // output classification version 
 
 // set frequency of classes
-var rareList =  [9, 36, 24, 25, 30];  // use a reduced number of training samples (25% of minimum, 1.75% of total)
-var rareList2 = [21, 33]; // use a reduced number of training samples (50% of minimum, 3.5% of total)
+var rareList =  [9, 24, 25, 30];  // use a reduced number of training samples (25% of minimum, 1.75% of total)
+var rareList2 = [21, 33, 36]; // use a reduced number of training samples (50% of minimum, 3.5% of total)
 var rareList3 = [11]; // use a reduced number of training samples (75% of minimum, 5.25% of total)
 var normalList = [3, 4, 12, 15, 19];
 
@@ -125,3 +125,13 @@ var predicted2 = mosaic_i.classify(classifier2).mask(mosaic_i.select(0)).rename(
 
 print('v2- balanced', predicted2);
 Map.addLayer(predicted2, vis, 'balanced');
+
+// export
+Export.image.toAsset({
+	image: predicted2,
+  description: id_carta + '_classification_v1',
+  assetId: output_dir + '/' + id_carta + '_classification_v1',
+  pyramidingPolicy: 'mode',
+  region: carta.geometry(),
+  scale: 10,
+  maxPixels: 1e13});
