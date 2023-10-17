@@ -8,6 +8,11 @@ var id_carta = 'SD-23-Y-C';
 var samples_version = 1;   // input training samples version
 var output_version =  1;  // output classification version 
 
+// set frequency of classes
+var rareList =  [9, 21, 36, 24, 25, 30];    // will use a reduced number of training samples (25% of minimum {10% of total})
+var rareList2 = [11, 33]; // will use a reduced number of training samples (50% of minimum, 3.5% of total)
+var normalList = [3, 4, 12, 15, 19];
+
 // output directory
 var output_dir = 'users/dh-conciani/gt_mapa_referencia/' + id_carta;
 
@@ -59,16 +64,7 @@ var mosaic_i = mosaic.filterMetadata('year', 'equals', 2020)
   .addBands(lon_cos)
   .addBands(hand);
 
-// limit samples of rare classes
-var rareClasses = trainingSamples.filter(ee.Filter.inList('reference', [9, 11, 21, 36, 24, 25, 30, 33]));
-print(rareClasses.size());
 
-var normalClasses = trainingSamples.filter(ee.Filter.inList('reference', [3, 4, 12, 15, 19]));
-print(normalClasses.size());
-
-
-
-  
 // train classifier
 var classifier = ee.Classifier.smileRandomForest({
   'numberOfTrees': 300,
@@ -85,5 +81,39 @@ var vis = {
     'palette': require('users/mapbiomas/modules:Palettes.js').get('classification8')
 };
 
-print(predicted);
+print('raw - unbalanced', predicted);
 Map.addLayer(predicted, vis, 'classification raw');
+
+///////////////////////////// BALANCE SAMPLES
+
+// limit samples of rare classes for 25% of relative (1.75% percent of total)
+var rareClasses = ee.FeatureCollection([]);
+rareList.forEach(function(class_i){
+  rareClasses = rareClasses.merge(trainingSamples.filter(ee.Filter.eq('reference', class_i)).limit(175));
+});
+
+// limit samples of rare classes for 50% of relative (3% percent of total)
+var rareClasses2 = ee.FeatureCollection([]);
+rareList2.forEach(function(class_i){
+  rareClasses2 = rareClasses2.merge(trainingSamples.filter(ee.Filter.eq('reference', class_i)).limit(300));
+});
+
+// bind manually adjusted rare classes with normal classes (real frequency)
+var trainingSamples2 = trainingSamples.filter(ee.Filter.inList('reference', normalList))
+  .merge(rareClasses).merge(rareClasses2);
+  
+///////////////////////////// END OF SAMPLE BALANCING
+
+
+// train classifier
+var classifier2 = ee.Classifier.smileRandomForest({
+  'numberOfTrees': 300,
+  'variablesPerSplit': 20
+  }).train(trainingSamples2, 'reference', mosaic_i.bandNames());
+
+
+// perform classificationn 
+var predicted2 = mosaic_i.classify(classifier2).mask(mosaic_i.select(0)).rename('classification_' + year).toInt8();
+
+print('v2- balanced', predicted2);
+Map.addLayer(predicted2, vis, 'classification v2');
