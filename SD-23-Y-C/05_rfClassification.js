@@ -10,8 +10,8 @@ var output_version =  1;  // output classification version
 
 // set frequency of classes
 var rareList =  [9, 21, 36, 24, 25, 30];    // will use a reduced number of training samples (25% of minimum {10% of total})
-var rareList2 = [11, 33]; // will use a reduced number of training samples (50% of minimum, 3.5% of total)
-var normalList = [3, 4, 12, 15, 19];
+var rareList2 = [33]; // will use a reduced number of training samples (50% of minimum, 3.5% of total)
+var normalList = [3, 4, 12, 15, 19, 11];
 
 // output directory
 var output_dir = 'users/dh-conciani/gt_mapa_referencia/' + id_carta;
