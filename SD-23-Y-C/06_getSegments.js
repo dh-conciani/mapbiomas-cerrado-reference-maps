@@ -64,13 +64,26 @@ Map.addLayer(classification, vis, 'classification', false);
 
     return snic.select(['clusters'], ['segments']);
   };
-
+  
 // create segments
-var segments = getSegments(// setinput image to be segmented:
-                           mosaic.select(["red_median", "nir_median", "swir1_median"]), 
-                           // set segment size:
-                           10
-                           ).reproject('EPSG:4326', null, 10);
-                                 
+var segments = getSegments(
+  // set input image to be segmented:
+  mosaic.select(["red_median", "nir_median", "swir1_median"]), 
+  // set segment size:
+  10
+).reproject('EPSG:4326', null, 10);
+
 // plot on the map
 Map.addLayer(segments.randomVisualizer(), {}, 'segments', false);
+print('segments', segments);
+
+// Export segments
+Export.image.toAsset({
+	image: segments,
+  description: id_carta + '_segments_v' + output_version,
+  assetId: output_dir + id_carta + '_segments_v' + output_version,
+  pyramidingPolicy: 'mode',
+  region: classification.geometry(),
+  scale: 10,
+  maxPixels: 1e13,
+});
