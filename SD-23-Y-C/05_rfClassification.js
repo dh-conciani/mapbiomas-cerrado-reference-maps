@@ -9,9 +9,10 @@ var samples_version = 1;   // input training samples version
 var output_version =  1;  // output classification version 
 
 // set frequency of classes
-var rareList =  [9, 21, 36, 24, 25, 30];    // will use a reduced number of training samples (25% of minimum {10% of total})
-var rareList2 = [33]; // will use a reduced number of training samples (50% of minimum, 3.5% of total)
-var normalList = [3, 4, 12, 15, 19, 11];
+var rareList =  [9, 36, 24, 25, 30];  // use a reduced number of training samples (25% of minimum, 1.75% of total)
+var rareList2 = [21]; // use a reduced number of training samples (50% of minimum, 3.5% of total)
+var rareList3 = [11]; // use a reduced number of training samples (75% of minimum, 5.25% of total)
+var normalList = [3, 4, 12, 15, 19];
 
 // output directory
 var output_dir = 'users/dh-conciani/gt_mapa_referencia/' + id_carta;
@@ -92,15 +93,22 @@ rareList.forEach(function(class_i){
   rareClasses = rareClasses.merge(trainingSamples.filter(ee.Filter.eq('reference', class_i)).limit(175));
 });
 
-// limit samples of rare classes for 50% of relative (3% percent of total)
+// limit samples of rare classes for 50% of relative (3.5% percent of total)
 var rareClasses2 = ee.FeatureCollection([]);
 rareList2.forEach(function(class_i){
   rareClasses2 = rareClasses2.merge(trainingSamples.filter(ee.Filter.eq('reference', class_i)).limit(300));
 });
 
+// limit samples of rare classes for 75% of relative (5.25% percent of total)
+var rareClasses3 = ee.FeatureCollection([]);
+rareList3.forEach(function(class_i){
+  rareClasses3 = rareClasses3.merge(trainingSamples.filter(ee.Filter.eq('reference', class_i)).limit(525));
+});
+
+
 // bind manually adjusted rare classes with normal classes (real frequency)
 var trainingSamples2 = trainingSamples.filter(ee.Filter.inList('reference', normalList))
-  .merge(rareClasses).merge(rareClasses2);
+  .merge(rareClasses).merge(rareClasses2).merge(rareClasses3);
   
 ///////////////////////////// END OF SAMPLE BALANCING
 
