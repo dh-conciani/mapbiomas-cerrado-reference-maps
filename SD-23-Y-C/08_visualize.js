@@ -32,6 +32,9 @@ var mosaic = ee.ImageCollection('projects/nexgenmap/MapBiomas2/SENTINEL/mosaics-
   .mosaic()
   .updateMask(mode);
 
+// split into subgrids 
+var subcarta = ee.FeatureCollection('projects/nexgenmap/ANCILLARY/nextgenmap_subgrids')
+    .filterMetadata('grid', 'equals', id_carta);
                  
 // read palette
 var vis = {
@@ -40,11 +43,11 @@ var vis = {
     'palette': require('users/mapbiomas/modules:Palettes.js').get('classification8')
 };
 
-// plot s
+// plot 
 Map.addLayer(mosaic, {'bands': ['swir1_median', 'nir_median', 'red_median'],
-  'gain': [0.08, 0.07, 0.2], 'gamma': 0.85}, 'Sentinel Mosaic', true);
-Map.addLayer(sentinel_beta, vis, 'sentnel beta', false);
+  'gain': [0.08, 0.07, 0.2], 'gamma': 0.85}, 'sentinel Mosaic', true);
+Map.addLayer(sentinel_beta, vis, 'sentinel beta', false);
 Map.addLayer(classification, vis, 'classification raw', false);
 Map.addLayer(segments.randomVisualizer(), {}, 'segments', false);
 Map.addLayer(mode, vis, 'classification + segmentation');
-
+Map.addLayer(subcarta, {}, 'subcarta', false);
