@@ -30,10 +30,6 @@ var mosaic = ee.ImageCollection('projects/nexgenmap/MapBiomas2/SENTINEL/mosaics-
   .mosaic()
   .updateMask(mode);
 
-// get planet
-
-
-
 // export 
 Export.image.toDrive({
 		image:mode,
