@@ -31,11 +31,37 @@ var mosaic = ee.ImageCollection('projects/nexgenmap/MapBiomas2/SENTINEL/mosaics-
   .updateMask(mode);
 
 // planet
+var analytic_202009 = ee.Image('projects/planet-nicfi/assets/basemaps/americas/planet_medres_normalized_analytic_2020-09_mosaic')
+  .updateMask(mode);
+  
+var analytic_202012 = ee.Image('projects/planet-nicfi/assets/basemaps/americas/planet_medres_normalized_analytic_2020-12_mosaic')
+  .updateMask(mode);
 
 
+Map.addLayer(analytic_202009, {min:[200,200,50],max:[1700,1400,1100],gamma: 1.35, bands:["R", "G", "B"]}, 'PLANET 2020-09', false);
+Map.addLayer(analytic_202012, {min:[200,200,50],max:[1700,1400,1100],gamma: 1.35, bands:["R", "G", "B"]}, 'PLANET 2020-12', false);
 
+Export.image.toDrive({
+		image: analytic_202009,
+    description: 'SD-23-Y-C_planet2020-09_v1',
+    folder: 'MAPA_REFERENCIA',
+    region: raw.geometry(),
+    scale: 4.77,
+    maxPixels: 1e13,
+    skipEmptyTiles: true,
+    fileFormat: 'GeoTIFF',
+});
 
-
+Export.image.toDrive({
+		image: analytic_202012,
+    description: 'SD-23-Y-C_planet2020-12_v1',
+    folder: 'MAPA_REFERENCIA',
+    region: raw.geometry(),
+    scale: 4.77,
+    maxPixels: 1e13,
+    skipEmptyTiles: true,
+    fileFormat: 'GeoTIFF',
+});
 
 // read study area
 var carta = ee.FeatureCollection('projects/nexgenmap/ANCILLARY/nextgenmap_grids')
@@ -52,7 +78,10 @@ var subcarta = ee.FeatureCollection('projects/nexgenmap/ANCILLARY/nextgenmap_sub
 
 // areas protegidas
 var aps = ee.FeatureCollection('projects/mapbiomas-workspace/AUXILIAR/areas-protegidas')
-  .filterBounds(carta);
+  .filterBounds(carta)
+
+
+
 
 Export.table.toDrive({
 		collection: aps,
