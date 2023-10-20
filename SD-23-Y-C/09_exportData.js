@@ -30,6 +30,52 @@ var mosaic = ee.ImageCollection('projects/nexgenmap/MapBiomas2/SENTINEL/mosaics-
   .mosaic()
   .updateMask(mode);
 
+// planet
+
+
+
+
+
+
+// read study area
+var carta = ee.FeatureCollection('projects/nexgenmap/ANCILLARY/nextgenmap_grids')
+  .filterMetadata('grid_name', 'equals', 'SD-23-Y-C')
+  // compute 300m buffer
+  .map(function(feature) {
+    return feature.buffer({'distance': 300});
+  });
+  
+// split into subgrids 
+var subcarta = ee.FeatureCollection('projects/nexgenmap/ANCILLARY/nextgenmap_subgrids')
+    .filterMetadata('grid', 'equals', 'SD-23-Y-C');
+    
+
+// areas protegidas
+var aps = ee.FeatureCollection('projects/mapbiomas-workspace/AUXILIAR/areas-protegidas')
+  .filterBounds(carta);
+
+Export.table.toDrive({
+		collection: aps,
+    description: 'SD-23-Y-C_protectedAreas',
+    folder: 'MAPA_REFERENCIA',
+    fileFormat: 'SHP',
+});
+
+
+Export.table.toDrive({
+		collection: carta,
+    description: 'SD-23-Y-C_Carta',
+    folder: 'MAPA_REFERENCIA',
+    fileFormat: 'SHP',
+});
+
+Export.table.toDrive({
+		collection: subcarta,
+    description: 'SD-23-Y-C_subCarta',
+    folder: 'MAPA_REFERENCIA',
+    fileFormat: 'SHP',
+});
+
 // export 
 Export.image.toDrive({
 		image:mode,
