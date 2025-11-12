@@ -5,7 +5,7 @@
 var id_carta = 'SD-23-Y-C';
 
 // set output 
-var output_dir = 'users/dh-conciani/gt_mapa_referencia/' + id_carta + '/masks';
+var output_dir = 'users/dh-conciani/gt_mapa_referencia/embeddings/masks';
 
 // set output version
 var output_version = 1;
@@ -25,7 +25,7 @@ var subcarta = ee.FeatureCollection('projects/nexgenmap/ANCILLARY/nextgenmap_sub
 
 //// read mapbiomas collections
 // landsat based
-var landsat = ee.Image('projects/mapbiomas-workspace/public/collection8/mapbiomas_collection80_integration_v1')
+var landsat = ee.Image('projects/mapbiomas-public/assets/brazil/lulc/collection10/mapbiomas_brazil_collection10_integration_v2')
   .clip(carta);
 
 // set landsat years
@@ -37,8 +37,8 @@ landsat_years.forEach(function(year_i) {
   // get year i
   var landsat_i = landsat.select('classification_' + year_i)
     // remap
-    .remap({'from': [3, 4, 5, 6, 49, 11, 12, 32, 29, 50, 13, 15, 19, 39, 20, 40, 62, 41, 36, 46, 47, 35, 48, 9, 21, 23, 24, 30, 25, 33, 31],
-            'to':   [3, 4, 3, 3, 3,  11, 12, 12, 12, 12, 12, 15, 19, 19, 19, 19, 19, 19, 36, 36, 36, 36, 36, 9, 21, 25, 24, 30, 25, 33, 33]
+    .remap({'from': [3, 4, 5, 6, 49, 11, 12, 29, 50, 13, 15, 19, 39, 20, 40, 62, 41, 46, 47, 35, 48,  9, 21, 23, 24, 75, 30, 25, 33, 31],
+            'to':   [3, 4, 3, 3,  3, 11, 12, 12, 12, 12, 15, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 9,  0,  25, 25, 25, 25, 25, 33, 33]
     });
     // store
     landsat_remap = landsat_remap.addBands(landsat_i.rename('classification_' + year_i));
@@ -46,7 +46,7 @@ landsat_years.forEach(function(year_i) {
 
 
 // sentinel based 
-var sentinel = ee.Image('projects/mapbiomas-workspace/public/collection_S2_beta/collection_LULC_S2_beta')
+var sentinel = ee.Image('projects/mapbiomas-public/assets/brazil/lulc_10m/collection2/mapbiomas_10m_collection2_integration_v1')
   .clip(carta);
 
 // set sentinel years
@@ -58,8 +58,8 @@ sentinel_years.forEach(function(year_i) {
   // get year i
   var sentinel_i = sentinel.select('classification_' + year_i)
   // remap
-    .remap({'from': [3, 4, 5, 6, 49, 11, 12, 32, 29, 50, 13, 15, 19, 39, 20, 40, 62, 41, 36, 46, 47, 35, 48, 9, 21, 23, 24, 30, 25, 33, 31],
-            'to':   [3, 4, 3, 3, 3,  11, 12, 12, 12, 12, 12, 15, 19, 19, 19, 19, 19, 19, 36, 36, 36, 36, 36, 9, 21, 25, 24, 30, 25, 33, 33]
+ .remap({'from': [3, 4, 5, 6, 49, 11, 12, 29, 50, 13, 15, 19, 39, 20, 40, 62, 41, 46, 47, 35, 48,  9, 21, 23, 24, 75, 30, 25, 33, 31],
+         'to':   [3, 4, 3, 3,  3, 11, 12, 12, 12, 12, 15, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 9,  0,  25, 25, 25, 25, 25, 33, 33]
     });
   // store
   sentinel_remap = sentinel_remap.addBands(sentinel_i.rename('classification_' + year_i));
@@ -100,7 +100,7 @@ var stable_mask = ee.Image(0)
   
 // build stable pixels
 var stable_pixels = stable_sentinel.updateMask(stable_mask.eq(1)).selfMask();
-Map.addLayer(stable_pixels, vis, 'Stable pixels (S2 + C8)', false);
+Map.addLayer(stable_pixels, vis, 'Stable pixels (S2 + C10)', false);
 
 //// enhance by using distrito federal reference map 
 var df_ref = ee.Image('projects/barbaracosta-ipam/assets/base/DF_cobertura-do-solo_2019_img')
