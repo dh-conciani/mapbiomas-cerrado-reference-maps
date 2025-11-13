@@ -11,18 +11,18 @@ var id_carta = 'SD-23-Y-C';
 var version_output = 1;
 
 // output directory
-var output_dir = 'users/dh-conciani/gt_mapa_referencia/' + id_carta;
+var output_dir = 'users/dh-conciani/gt_mapa_referencia/embeddings';
 
 // define sample size
 var sampleSize = 7000;     // number of samples to be sorted 
 var nSamplesMin = 700;     // minimum sample size by class
 
 // read training mask
-var trainingMask = ee.Image('users/dh-conciani/gt_mapa_referencia/SD-23-Y-C/masks/trainingMask_SD-23-Y-C_v1')
+var trainingMask = ee.Image('users/dh-conciani/gt_mapa_referencia/embeddings/masks/trainingMask_SD-23-Y-C_v1')
   .rename('reference');
 
 // read areas reference 
-var referenceAreas = ee.FeatureCollection('users/dh-conciani/gt_mapa_referencia/SD-23-Y-C/SD-23-Y-C_area_v1');
+var referenceAreas = ee.FeatureCollection('users/dh-conciani/gt_mapa_referencia/embeddings/SD-23-Y-C_area_v1');
 
 // read study area
 var carta = ee.FeatureCollection('projects/nexgenmap/ANCILLARY/nextgenmap_grids')
@@ -54,16 +54,13 @@ var getTrainingSamples = function (feature) {
   var grassland = ee.Number(feature.get('12'));
   var pasture = ee.Number(feature.get('15'));
   var agriculture = ee.Number(feature.get('19'));
-  var mosaic = ee.Number(feature.get('21'));
-  var urban = ee.Number(feature.get('24'));
   var non_vegetated = ee.Number(feature.get('25'));
   var mining = ee.Number(feature.get('30'));
   var water = ee.Number(feature.get('33'));
-  var agriculture2 = ee.Number(feature.get('36'));
-  
+
   // compute the total area 
   var total = forest.add(savanna).add(forestry).add(wetland).add(grassland).add(pasture).add(agriculture)
-                    .add(mosaic).add(urban).add(non_vegetated).add(mining).add(water).add(agriculture2);
+                    .add(non_vegetated).add(water);
               
   // define the equation to compute the n of samples per class
   var computeSize = function (number) {
@@ -78,12 +75,8 @@ var getTrainingSamples = function (feature) {
   var n_grassland = computeSize(ee.Number(grassland));
   var n_pasture = computeSize(ee.Number(pasture));
   var n_agriculture = computeSize(ee.Number(agriculture));
-  var n_mosaic = computeSize(ee.Number(mosaic));
-  var n_urban = computeSize(ee.Number(urban));  
   var n_non_vegetated = computeSize(ee.Number(non_vegetated));
-  var n_mining = computeSize(ee.Number(mining));
   var n_water = computeSize(ee.Number(water));
-  var n_agriculture2 = computeSize(ee.Number(agriculture2));
 
   // get the geometry of the region
   var region_i_geometry = ee.Feature(feature).geometry();
@@ -98,10 +91,10 @@ var getTrainingSamples = function (feature) {
                                  'region': feature.geometry(),
                                  'seed': 1,
                                  'geometries': true,
-                                 'classValues': [3, 4, 9, 11, 12, 15, 19, 21, 24, 25, 30, 33, 36],
+                                 'classValues': [3, 4, 9, 11, 12, 15, 19, 25, 33],
                                  'classPoints': [n_forest, n_savanna, n_forestry, n_wetland, n_grassland,
-                                                 n_pasture, n_agriculture, n_mosaic, n_urban, n_non_vegetated,
-                                                 n_mining, n_water, n_agriculture2]
+                                                 n_pasture, n_agriculture, n_non_vegetated, 
+                                                 n_water]
                                   }
                                 );
 
