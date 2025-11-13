@@ -1,6 +1,52 @@
 // Run smileRandomForest classifier 
 // For clarification, write to <dhemerson.costa@ipam.org.br> 
 
+function getFeatureImportance(model){
+  
+  var importance = ee.Dictionary(model.explain().get('importance'))
+  var sum = importance.values().reduce(ee.Reducer.sum())
+
+  var relativeImportance = importance.map(function(key, val) {
+        return (ee.Number(val).multiply(100)).divide(sum)
+  })
+  var sorted_keys = relativeImportance.keys().sort(relativeImportance.values())
+  var sorted_values = relativeImportance.values().sort()
+  
+  sorted_keys = sorted_keys.getInfo()
+  sorted_values = sorted_values.getInfo()
+  print(sorted_keys)
+  print(sorted_values)
+  var dict = ee.Dictionary()
+  for (var i in sorted_keys){
+    dict = dict.set(ee.String(sorted_keys[i]), ee.Number(sorted_values[i]))
+  }
+  
+  var importanceFc = ee.FeatureCollection([ee.Feature(null, relativeImportance)])
+
+  //var chart = ui.Chart.feature.byProperty({features: importanceFc})
+  var chart = ui.Chart.array.values({array: sorted_values, axis: 0, xLabels: sorted_keys})
+        .setChartType('ColumnChart')
+        .setOptions({
+          title: 'Variable Importance:',
+          fontSize: 10,
+          hAxis: {
+              title: 'Bands',
+              textStyle :{fontSize:18},
+              slantedTextAngle:45,
+              gridlines: {color: 'FFFFFF'},
+          },
+          vAxis: {
+            title: 'Importance',
+            textStyle :{fontSize:18},
+            gridlines: {color: 'FFFFFF'},
+          },
+          chartArea: {backgroundColor: 'EBEBEB',width:'60%',height:'40%'},
+          legend: {position: 'none'}
+        })
+  print(chart, 'Relative Importance')
+}
+
+
 // define ibges' carta id
 var id_carta = 'SD-23-Y-C';
 
@@ -103,6 +149,8 @@ var classifier2 = ee.Classifier.smileRandomForest({
   'variablesPerSplit': 20
   }).train(trainingSamples2, 'reference', mosaic_i.bandNames());
 
+
+getFeatureImportance(classifier2)
 
 // perform classificationn 
 var predicted2 = mosaic_i.classify(classifier2).rename('classification_' + year).toInt8();
