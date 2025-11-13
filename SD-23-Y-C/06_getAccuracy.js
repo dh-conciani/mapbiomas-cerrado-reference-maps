@@ -22,8 +22,8 @@ var mixedfull = ee.Image('users/dh-conciani/gt_mapa_referencia/embeddings/SD-23-
 
 var col10_raw = ee.Image('projects/mapbiomas-workspace/COLECAO_DEV/COLECAO10_DEV/CERRADO/LANDSAT/C10-POST-CLASSIFICATION/CERRADO_C10_gapfill_v11').select('classification_2020')
   .remap({
-    'from': [3, 4, 5, 6, 49, 11, 12, 29, 50, 13, 15, 19, 39, 20, 40, 62, 41, 46, 47, 35, 48,  9, 21, 23, 24, 75, 30, 25, 33, 31],
-    'to':   [3, 4, 3, 3,  3, 11, 12, 12, 12, 12, 15, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 9,  0,  25, 25, 25, 25, 25, 33, 33]
+   'from': [3, 4, 5, 6, 49, 11, 12, 29, 50, 13, 15, 18, 19, 39, 20, 40, 62, 41, 46, 47, 35, 48,  9, 21, 23, 24, 75, 30, 25, 33, 31],
+    'to':   [3, 4, 3, 3,  3, 11, 12, 12, 12, 12, 15, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 9,  0,  25, 25, 25, 25, 25, 33, 33]
   })
   .rename('COL10_RAW')
 
