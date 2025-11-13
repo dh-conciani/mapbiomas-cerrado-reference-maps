@@ -14,8 +14,8 @@ function getFeatureImportance(model){
   
   sorted_keys = sorted_keys.getInfo()
   sorted_values = sorted_values.getInfo()
-  print(sorted_keys)
-  print(sorted_values)
+  //print(sorted_keys)
+  //print(sorted_values)
   var dict = ee.Dictionary()
   for (var i in sorted_keys){
     dict = dict.set(ee.String(sorted_keys[i]), ee.Number(sorted_values[i]))
