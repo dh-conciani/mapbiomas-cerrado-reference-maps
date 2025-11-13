@@ -4,11 +4,14 @@
 // define ibges' carta id
 var id_carta = 'SD-23-Y-C';
 
+// define platform 
+var platform = 'LANDSAT';
+
 // input metadata
 var version_output = 1;
 
 // output directory
-var output_dir = 'users/dh-conciani/gt_mapa_referencia/' + id_carta;
+var output_dir = 'users/dh-conciani/gt_mapa_referencia/embeddings';
 
 // read study area
 var carta = ee.FeatureCollection('projects/nexgenmap/ANCILLARY/nextgenmap_grids')
@@ -19,41 +22,30 @@ var carta = ee.FeatureCollection('projects/nexgenmap/ANCILLARY/nextgenmap_grids'
 });
 
 // read sentinel-2 mosaic
-var mosaic = ee.ImageCollection('projects/nexgenmap/MapBiomas2/SENTINEL/mosaics-3')
-  .filter(ee.Filter.eq('version', '3'))
-  .filter(ee.Filter.eq('biome', 'CERRADO'))
+var mosaic = ee.ImageCollection('projects/nexgenmap/MapBiomas2/LANDSAT/BRAZIL/mosaics-2')
   .filterBounds(carta);
 
 // set reference year
 var year = 2020;
 
 // import sample points
-var samples = ee.FeatureCollection('users/dh-conciani/gt_mapa_referencia/SD-23-Y-C/SD-23-Y-C_samplePoints_v1');
-
-// compute aditional bands for thye sentinel-2 mosaic
-var geo_coordinates = ee.Image.pixelLonLat().clip(carta);
-// get latitude
-var lat = geo_coordinates.select('latitude').add(5).multiply(-1).multiply(1000).toInt16();
-// get longitude
-var lon_sin = geo_coordinates.select('longitude').multiply(Math.PI).divide(180)
-  .sin().multiply(-1).multiply(10000).toInt16().rename('longitude_sin');
-// longitude cosine
-var lon_cos = geo_coordinates.select('longitude').multiply(Math.PI).divide(180)
-  .cos().multiply(-1).multiply(10000).toInt16().rename('longitude_cos');
+var samples = ee.FeatureCollection('users/dh-conciani/gt_mapa_referencia/embeddings/SD-23-Y-C_samplePoints_v1');
 
 // get heigth above nearest drainage
 var hand = ee.ImageCollection('users/gena/global-hand/hand-100').mosaic().toInt16()
   .clip(carta).rename('hand');
   
 // get the sentinel mosaic for the classification year
-var mosaic_i = mosaic.filterMetadata('year', 'equals', year).mosaic();
+var mosaic_i = mosaic.filterMetadata('year', 'equals', year)
+  .mosaic()
+  .clip(carta);
 
 // plot sentinel mosaic
-Map.addLayer(mosaic, {'bands': ['swir1_median', 'nir_median', 'red_median'],
+Map.addLayer(mosaic_i, {'bands': ['swir1_median', 'nir_median', 'red_median'],
   'gain': [0.08, 0.07, 0.2], 'gamma': 0.85}, 'Sentinel ' + year, true);
   
 // build mosaic with complementary bands
-mosaic_i = mosaic_i.addBands(lat).addBands(lon_sin).addBands(lon_cos).addBands(hand);
+mosaic_i = mosaic_i.addBands(hand);
 
 // apply style over the points
 var paletteMapBiomas = require('users/mapbiomas/modules:Palettes.js').get('classification8');
@@ -80,5 +72,5 @@ var training_i = mosaic_i.sampleRegions({'collection': samples,
                                          'tileScale': 2});
 // export as GEE asset
 Export.table.toAsset({'collection': training_i,
-                      'description': id_carta + '_training_v' + version_output,
-                      'assetId':  output_dir + '/' + id_carta + '_training_v' + version_output});
+                      'description': id_carta + '_' + platform + '_training_v' + version_output,
+                      'assetId':  output_dir + '/'  + id_carta + '_' + platform + '_training_v' + version_output});
