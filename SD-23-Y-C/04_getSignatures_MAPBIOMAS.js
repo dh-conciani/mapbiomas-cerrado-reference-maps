@@ -29,7 +29,7 @@ var year = 2020;
 var mosaic = ee.ImageCollection('users/dh-conciani/embeddings/ref-carta');
 
 // import sample points
-var samples = ee.FeatureCollection('users/dh-conciani/gt_mapa_referencia/embeddings/SD-23-Y-C_LANDSAT_training_v1');
+var samples = ee.FeatureCollection('users/dh-conciani/gt_mapa_referencia/embeddings/SD-23-Y-C_samplePoints_v1');
 
 // get the sentinel mosaic for the classification year
 var mosaic_i = mosaic
