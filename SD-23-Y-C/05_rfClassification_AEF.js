@@ -4,18 +4,21 @@
 // define ibges' carta id
 var id_carta = 'SD-23-Y-C';
 
+// set platform
+var platform = 'AEF';
+
 // define strings to be used as metadata
 var samples_version = 1;   // input training samples version
 var output_version =  1;  // output classification version 
 
 // set frequency of classes
-var rareList =  [9, 24, 25, 30];  // use a reduced number of training samples (25% of minimum, 1.75% of total)
-var rareList2 = [21, 33, 36]; // use a reduced number of training samples (50% of minimum, 3.5% of total)
+var rareList =  [9, 25];  // use a reduced number of training samples (25% of minimum, 1.75% of total)
+var rareList2 = [33]; // use a reduced number of training samples (50% of minimum, 3.5% of total)
 var rareList3 = [11]; // use a reduced number of training samples (75% of minimum, 5.25% of total)
 var normalList = [3, 4, 12, 15, 19];
 
 // output directory
-var output_dir = 'users/dh-conciani/gt_mapa_referencia/' + id_carta;
+var output_dir = 'users/dh-conciani/gt_mapa_referencia/embeddings';
 
 // read study area
 var carta = ee.FeatureCollection('projects/nexgenmap/ANCILLARY/nextgenmap_grids')
@@ -28,42 +31,20 @@ var carta = ee.FeatureCollection('projects/nexgenmap/ANCILLARY/nextgenmap_grids'
 // build a raster for the carta
 var carta_img = ee.Image(1).clip(carta);
 
-// read sentinel-2 mosaic
-var mosaic = ee.ImageCollection('projects/nexgenmap/MapBiomas2/SENTINEL/mosaics-3')
-  .filter(ee.Filter.eq('version', '3'))
-  .filter(ee.Filter.eq('biome', 'CERRADO'))
-  .filterBounds(carta);
+// read mosaic
+var mosaic = ee.ImageCollection('GOOGLE/SATELLITE_EMBEDDING/V1/ANNUAL');
 
 // set reference year
 var year = 2020;
 
 // read training samples
-var trainingSamples = ee.FeatureCollection('users/dh-conciani/gt_mapa_referencia/SD-23-Y-C/SD-23-Y-C_training_v1');
+var trainingSamples = ee.FeatureCollection('users/dh-conciani/gt_mapa_referencia/embeddings/SD-23-Y-C_AEF_training_v1');
 
-// compute aditional bands for thye sentinel-2 mosaic
-var geo_coordinates = ee.Image.pixelLonLat().clip(carta);
-// get latitude
-var lat = geo_coordinates.select('latitude').add(5).multiply(-1).multiply(1000).toInt16();
-// get longitude
-var lon_sin = geo_coordinates.select('longitude').multiply(Math.PI).divide(180)
-  .sin().multiply(-1).multiply(10000).toInt16().rename('longitude_sin');
-// longitude cosine
-var lon_cos = geo_coordinates.select('longitude').multiply(Math.PI).divide(180)
-  .cos().multiply(-1).multiply(10000).toInt16().rename('longitude_cos');
-
-// get heigth above nearest drainage
-var hand = ee.ImageCollection('users/gena/global-hand/hand-100').mosaic().toInt16()
-  .clip(carta).rename('hand');
-  
 // get the sentinel mosaic for the current year 
-var mosaic_i = mosaic.filterMetadata('year', 'equals', 2020)
-  .mosaic()
-  .updateMask(carta_img)
-  // add auxiliary bands
-  .addBands(lat)
-  .addBands(lon_sin)
-  .addBands(lon_cos)
-  .addBands(hand);
+var mosaic_i = mosaic
+  .filterDate(year + '-01-01', year+1 + '-01-01')
+  .filterBounds(carta)
+  .first();
 
 
 // train classifier
@@ -78,8 +59,8 @@ var predicted = mosaic_i.classify(classifier).mask(mosaic_i.select(0)).rename('c
 // read palette
 var vis = {
     'min': 0,
-    'max': 62,
-    'palette': require('users/mapbiomas/modules:Palettes.js').get('classification8')
+    'max': 75,
+    'palette': require('users/mapbiomas/modules:Palettes.js').get('classification10')
 };
 
 print('raw - unbalanced', predicted);
@@ -129,8 +110,8 @@ Map.addLayer(predicted2, vis, 'balanced');
 // export
 Export.image.toAsset({
 	image: predicted2,
-  description: id_carta + '_classification_v1',
-  assetId: output_dir + '/' + id_carta + '_classification_v1',
+  description: id_carta + '_classification_' + platform + '_v1',
+  assetId: output_dir + '/' + id_carta + '_classification_' + platform + '_v1',
   pyramidingPolicy: 'mode',
   region: carta.geometry(),
   scale: 10,
