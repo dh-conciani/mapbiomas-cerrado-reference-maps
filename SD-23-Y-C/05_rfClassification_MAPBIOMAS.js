@@ -45,24 +45,16 @@ var mosaic_i = mosaic
   .filterBounds(carta)
   .mosaic();
 
-// train classifier
-var classifier = ee.Classifier.smileRandomForest({
-  'numberOfTrees': 300,
-  'variablesPerSplit': 20
-  }).train(trainingSamples, 'reference', mosaic_i.bandNames());
+Map.addLayer(mosaic_i)
 
-// perform classificationn 
-var predicted = mosaic_i.classify(classifier).mask(mosaic_i.select(0)).rename('classification_' + year).toInt8();
 
 // read palette
 var vis = {
     'min': 0,
-    'max': 75,
-    'palette': require('users/mapbiomas/modules:Palettes.js').get('classification10')
+    'max': 62,
+    'palette': require('users/mapbiomas/modules:Palettes.js').get('classification8')
 };
 
-print('raw - unbalanced', predicted);
-Map.addLayer(predicted, vis, 'unbalanced');
 
 ///////////////////////////// BALANCE SAMPLES
 
@@ -100,7 +92,7 @@ var classifier2 = ee.Classifier.smileRandomForest({
 
 
 // perform classificationn 
-var predicted2 = mosaic_i.classify(classifier2).mask(mosaic_i.select(0)).rename('classification_' + year).toInt8();
+var predicted2 = mosaic_i.classify(classifier2).rename('classification_' + year).toInt8();
 
 print('v2- balanced', predicted2);
 Map.addLayer(predicted2, vis, 'balanced');
