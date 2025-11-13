@@ -8,10 +8,10 @@ var id_carta = 'SD-23-Y-C';
 var version_output = 1;
 
 // define classes to be assessed
-var classes = [3, 4, 11, 12, 9, 15, 19, 36, 21, 24, 25, 30, 33];
+var classes = [3, 4, 11, 12, 9, 15, 19, 25, 33];
 
 // output directory
-var output_dir = 'users/dh-conciani/gt_mapa_referencia/' + id_carta;
+var output_dir = 'users/dh-conciani/gt_mapa_referencia/embeddings';
 
 // read study area
 var carta = ee.FeatureCollection('projects/nexgenmap/ANCILLARY/nextgenmap_grids')
@@ -22,7 +22,7 @@ var carta = ee.FeatureCollection('projects/nexgenmap/ANCILLARY/nextgenmap_grids'
   });
 
 // read reference data in which areas will be computed
-var mapbiomas = ee.Image('users/dh-conciani/gt_mapa_referencia/SD-23-Y-C/masks/trainingMask_SD-23-Y-C_v1');
+var mapbiomas = ee.Image('users/dh-conciani/gt_mapa_referencia/embeddings/masks/trainingMask_SD-23-Y-C_v1');
 
 // define function to compute area (skm)
 var pixelArea = ee.Image.pixelArea().divide(1000000);
