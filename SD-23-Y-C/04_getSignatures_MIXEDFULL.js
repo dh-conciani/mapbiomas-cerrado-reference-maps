@@ -5,7 +5,7 @@
 var id_carta = 'SD-23-Y-C';
 
 // define platform 
-var platform = 'MIXED';
+var platform = 'MIXEDFULL';
 
 // input metadata
 var version_output = 1;
@@ -29,9 +29,6 @@ var landsat = ee.ImageCollection('projects/nexgenmap/MapBiomas2/LANDSAT/BRAZIL/m
   .filterBounds(carta)
   .filterMetadata('year', 'equals', year)
   .mosaic()
-  .select(['nir_median', 'nir_median_dry', 'nir_median_wet', 'swir1_median', 'swir2_median',
-          'ndvi_median', 'ndvi_median_dry','ndvi_median_wet', 'evi2_median', 'ndfi_median', 
-          'slope']);
 
 // get heigth above nearest drainage
 var hand = ee.ImageCollection('users/gena/global-hand/hand-100').mosaic().toInt16()
