@@ -17,7 +17,7 @@ var ref = ee.Image('projects/ee-barbarasilvaipam/assets/2024_mapa-referencia/CER
 var land = ee.Image('users/dh-conciani/gt_mapa_referencia/embeddings/SD-23-Y-C_classification_LANDSAT_v1').rename('LANDSAT')
 var aef = ee.Image('users/dh-conciani/gt_mapa_referencia/embeddings/SD-23-Y-C_classification_AEF_v1').rename('AEF')
 var mapbiomas = ee.Image('users/dh-conciani/gt_mapa_referencia/embeddings/SD-23-Y-C_classification_MAPBIPOMAS_v1').rename('MAPBIOMAS')
-var mixed = ee.Image('').rename('MIXED')
+var mixed = ee.Image('users/dh-conciani/gt_mapa_referencia/embeddings/SD-23-Y-C_classification_MIXED_v1').rename('MIXED')
 var mixedfull = ee.Image('').rename('MIXEDFULL')
 
 // read palette
@@ -31,6 +31,8 @@ Map.addLayer(ref, vis, 'REFERENCE')
 Map.addLayer(land, vis,'LANDSAT')
 Map.addLayer(aef, vis, 'AEF')
 Map.addLayer(mapbiomas, vis, 'MAPBIOMAS')
+Map.addLayer(mixed, vis, 'MIXED')
+
 
 
 ///////////////// compute confusion matrixes
@@ -40,6 +42,7 @@ var samplePoints = land
   .addBands(ref)
   .addBands(aef)
   .addBands(mapbiomas)
+  .addBands(mixed)
   .sample({
     region: region,
     scale: 30,              // adjust to your pixel size
@@ -53,9 +56,11 @@ var samplePoints = land
 var acc_land = samplePoints.errorMatrix('LANDSAT', 'REFERENCE');
 var acc_aef = samplePoints.errorMatrix('AEF', 'REFERENCE');
 var acc_mapbiomas = samplePoints.errorMatrix('MAPBIOMAS', 'REFERENCE');
+var acc_mixed = samplePoints.errorMatrix('MIXED', 'REFERENCE');
 
 
 print('LANDSAT', acc_land.accuracy(), acc_land.consumersAccuracy(), acc_land.producersAccuracy())
 print('AEF', acc_aef.accuracy(), acc_aef.consumersAccuracy(), acc_aef.producersAccuracy())
 print('MAPBIOMAS EMBEDDINGS', acc_mapbiomas.accuracy(), acc_mapbiomas.consumersAccuracy(), acc_mapbiomas.producersAccuracy())
+print('MIXED', acc_mixed.accuracy(), acc_mixed.consumersAccuracy(), acc_mixed.producersAccuracy())
 
