@@ -1,3 +1,5 @@
+// get accuracy of the tests
+
 var col10 = ee.Image('projects/mapbiomas-public/assets/brazil/lulc/collection10/mapbiomas_brazil_collection10_integration_v2')
   .select('classification_2020')
   .remap({
@@ -17,8 +19,6 @@ var aef = ee.Image('users/dh-conciani/gt_mapa_referencia/embeddings/SD-23-Y-C_cl
 var mapbiomas = ee.Image('users/dh-conciani/gt_mapa_referencia/embeddings/SD-23-Y-C_classification_MAPBIPOMAS_v1').rename('MAPBIOMAS')
 var mixed = ee.Image('').rename('MIXED')
 var mixedfull = ee.Image('').rename('MIXEDFULL')
-
-
 
 // read palette
 var vis = {
@@ -43,7 +43,7 @@ var samplePoints = land
   .sample({
     region: region,
     scale: 30,              // adjust to your pixel size
-    numPixels: 15000,        // number of random samples
+    numPixels: 10000,        // number of random samples
     seed: 42,
     geometries: false
   });
@@ -55,7 +55,7 @@ var acc_aef = samplePoints.errorMatrix('AEF', 'REFERENCE');
 var acc_mapbiomas = samplePoints.errorMatrix('MAPBIOMAS', 'REFERENCE');
 
 
-print('LANDSAT', acc_land.accuracy())
-print('AEF', acc_aef.accuracy())
-print('MAPBIOMAS EMBEDDINGS', acc_mapbiomas.accuracy())
+print('LANDSAT', acc_land.accuracy(), acc_land.consumersAccuracy(), acc_land.producersAccuracy())
+print('AEF', acc_aef.accuracy(), acc_aef.consumersAccuracy(), acc_aef.producersAccuracy())
+print('MAPBIOMAS EMBEDDINGS', acc_mapbiomas.accuracy(), acc_mapbiomas.consumersAccuracy(), acc_mapbiomas.producersAccuracy())
 
